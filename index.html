@@ -858,23 +858,63 @@
     let hasTriedAutoMusic = false;
 
     function seekToClipStart() {
-      if (!bgAudio) return;
-      if (bgAudio.currentTime < CONFIG.audioStartSec || bgAudio.currentTime >= CONFIG.audioEndSec) {
-        bgAudio.currentTime = CONFIG.audioStartSec;
+    const bgAudio = document.getElementById("bgAudio");
+let isMusicPlaying = false;
+let hasTriedAutoMusic = false;
+let isSeekingToStart = false;
+
+function jumpToStartTime() {
+  if (!bgAudio || isNaN(bgAudio.duration)) return;
+  const targetTime = Math.min(CONFIG.audioStartSec, Math.max(0, bgAudio.duration - 1));
+  if (Math.abs(bgAudio.currentTime - targetTime) > 0.6) {
+    isSeekingToStart = true;
+    bgAudio.currentTime = targetTime;
+    setTimeout(() => { isSeekingToStart = false; }, 300);
+  }
+}
+
+if (bgAudio) {
+  bgAudio.addEventListener("loadedmetadata", jumpToStartTime);
+  bgAudio.addEventListener("canplay", () => {
+    if (!isMusicPlaying) jumpToStartTime();
+  });
+
+  bgAudio.addEventListener("playing", () => {
+    if (bgAudio.currentTime < CONFIG.audioStartSec - 1 && !isSeekingToStart) {
+      jumpToStartTime();
+    }
+  });
+
+  bgAudio.addEventListener("timeupdate", () => {
+    if (isSeekingToStart) return;
+    if (bgAudio.currentTime >= CONFIG.audioEndSec) {
+      jumpToStartTime();
+      if (isMusicPlaying) {
+        bgAudio.play().catch(() => {});
       }
     }
+  });
+}
 
-    if (bgAudio) {
-      bgAudio.addEventListener("loadedmetadata", seekToClipStart);
+function toggleMusic(forceState) {
+  const musicIcon = document.getElementById("musicIcon");
+  if (!bgAudio) return;
 
-      bgAudio.addEventListener("timeupdate", () => {
-        if (bgAudio.currentTime >= CONFIG.audioEndSec) {
-          bgAudio.currentTime = CONFIG.audioStartSec;
-          if (isMusicPlaying) {
-            bgAudio.play().catch(() => {});
-          }
-        }
-      });
+  isMusicPlaying = typeof forceState === "boolean" ? forceState : !isMusicPlaying;
+
+  if (isMusicPlaying) {
+    bgAudio.play().then(() => {
+      jumpToStartTime();
+      musicIcon.textContent = "🎵";
+    }).catch(() => {
+      isMusicPlaying = false;
+      musicIcon.textContent = "🔇";
+    });
+  } else {
+    bgAudio.pause();
+    musicIcon.textContent = "🔇";
+  }
+}
     }
 
     function toggleMusic(forceState) {
