@@ -249,7 +249,7 @@
       50% { transform: translateY(-7px) scale(1.08); }
     }
 
-    .bunny-sway {
+    .owl-sway {
       animation: gentleSway 3.5s ease-in-out infinite;
       transform-origin: 200px 210px;
     }
@@ -425,7 +425,7 @@
     <section id="scene3" class="scene" aria-label="Birthday Illustration and Love Letter">
       <div class="scene3-layout">
 
-        <!-- Custom Cute Vector Illustration: Bunny Musician + Party Hat + Happy Birthday Arch -->
+        <!-- Custom Cute Vector Illustration: Cute Owl + Party Hat + Guitar + Happy Birthday Arch -->
         <div class="illustration-stage" aria-hidden="true">
           <svg viewBox="0 0 400 235" width="100%" height="auto" fill="none">
             <!-- Bunting / Garland Arch -->
@@ -457,52 +457,54 @@
             <!-- Soft Ground Glow -->
             <ellipse cx="200" cy="216" rx="85" ry="12" fill="rgba(255, 119, 183, 0.22)"/>
 
-            <!-- Cute White Bunny Character -->
-            <g class="bunny-sway">
-              <!-- Bunny Ears -->
-              <rect x="174" y="68" width="16" height="48" rx="8" transform="rotate(-10 174 68)" fill="#ffffff" stroke="#f0d9e7" stroke-width="2"/>
-              <rect x="178" y="74" width="8" height="34" rx="4" transform="rotate(-10 178 74)" fill="#ffb3d5"/>
+            <!-- Cute Owl Character -->
+            <g class="owl-sway">
+              <!-- Owl Body & Head -->
+              <path d="M162 128 C162 96, 238 96, 238 128 L242 184 C242 204, 224 214, 200 214 C176 214, 158 204, 158 184 Z"
+                    fill="#d7b8f3" stroke="#b992de" stroke-width="2"/>
 
-              <rect x="210" y="68" width="16" height="48" rx="8" transform="rotate(10 210 68)" fill="#ffffff" stroke="#f0d9e7" stroke-width="2"/>
-              <rect x="214" y="74" width="8" height="34" rx="4" transform="rotate(10 214 74)" fill="#ffb3d5"/>
+              <!-- Belly Patch -->
+              <ellipse cx="200" cy="180" rx="25" ry="28" fill="#fff5fc"/>
+              <path d="M188 172 Q192 177 196 172" stroke="#e2b4d8" stroke-width="2" stroke-linecap="round" fill="none"/>
+              <path d="M204 172 Q208 177 212 172" stroke="#e2b4d8" stroke-width="2" stroke-linecap="round" fill="none"/>
+              <path d="M194 186 Q200 191 206 186" stroke="#e2b4d8" stroke-width="2" stroke-linecap="round" fill="none"/>
+
+              <!-- Owl Wings -->
+              <path d="M160 144 C144 152, 144 178, 160 186 Z" fill="#c39be8" stroke="#a97cd6" stroke-width="1.8"/>
+              <path d="M240 144 C256 152, 256 178, 240 186 Z" fill="#c39be8" stroke="#a97cd6" stroke-width="1.8"/>
 
               <!-- Cute Party Hat -->
               <polygon points="200,56 187,94 213,94" fill="#ff2a85"/>
               <circle cx="200" cy="54" r="5" fill="#ffbe3b"/>
               <line x1="191" y1="82" x2="209" y2="82" stroke="#ffe3f1" stroke-width="2.5"/>
 
-              <!-- Bunny Body -->
-              <ellipse cx="200" cy="176" rx="34" ry="38" fill="#ffffff" stroke="#f0d9e7" stroke-width="2"/>
-              <!-- Bunny Feet -->
-              <ellipse cx="183" cy="211" rx="13" ry="7" fill="#ffffff" stroke="#f0d9e7" stroke-width="2"/>
-              <ellipse cx="217" cy="211" rx="13" ry="7" fill="#ffffff" stroke="#f0d9e7" stroke-width="2"/>
+              <!-- Big Cute Owl Eyes -->
+              <circle cx="185" cy="121" r="14" fill="#ffffff" stroke="#a97cd6" stroke-width="2"/>
+              <circle cx="215" cy="121" r="14" fill="#ffffff" stroke="#a97cd6" stroke-width="2"/>
+              <circle cx="186" cy="121" r="7.5" fill="#2d2036"/>
+              <circle cx="214" cy="121" r="7.5" fill="#2d2036"/>
+              <circle cx="188.5" cy="118.5" r="2.6" fill="#ffffff"/>
+              <circle cx="216.5" cy="118.5" r="2.6" fill="#ffffff"/>
 
-              <!-- Bunny Head -->
-              <circle cx="200" cy="122" r="32" fill="#ffffff" stroke="#f0d9e7" stroke-width="2"/>
-              <!-- Eyes -->
-              <circle cx="189" cy="120" r="3.5" fill="#2d2036"/>
-              <circle cx="211" cy="120" r="3.5" fill="#2d2036"/>
-              <circle cx="190" cy="118.8" r="1.2" fill="#ffffff"/>
-              <circle cx="212" cy="118.8" r="1.2" fill="#ffffff"/>
               <!-- Rosy Cheeks -->
-              <ellipse cx="181" cy="127" rx="5" ry="3" fill="#ff9ec7" opacity="0.75"/>
-              <ellipse cx="219" cy="127" rx="5" ry="3" fill="#ff9ec7" opacity="0.75"/>
-              <!-- Cute Nose & Smile -->
-              <polygon points="197,126 203,126 200,129.5" fill="#ff66a3"/>
-              <path d="M195 132 Q200 136 205 132" stroke="#2d2036" stroke-width="2" stroke-linecap="round" fill="none"/>
+              <ellipse cx="171" cy="133" rx="5.5" ry="3.2" fill="#ff8ec0" opacity="0.8"/>
+              <ellipse cx="229" cy="133" rx="5.5" ry="3.2" fill="#ff8ec0" opacity="0.8"/>
+
+              <!-- Cute Owl Beak -->
+              <polygon points="195,128 205,128 200,138" fill="#ffaa2b" stroke="#e08b12" stroke-width="1.5" stroke-linejoin="round"/>
+
+              <!-- Owl Feet -->
+              <ellipse cx="184" cy="213" rx="11" ry="5.5" fill="#ffaa2b"/>
+              <ellipse cx="216" cy="213" rx="11" ry="5.5" fill="#ffaa2b"/>
 
               <!-- Cute Acoustic Guitar -->
-              <g transform="rotate(-18 200 175)">
-                <rect x="208" y="167" width="46" height="8" rx="3" fill="#c97a4b"/>
-                <rect x="250" y="165" width="10" height="12" rx="2" fill="#8c4d27"/>
-                <circle cx="184" cy="171" r="16" fill="#ff9f5a" stroke="#d97236" stroke-width="2"/>
-                <circle cx="202" cy="171" r="12" fill="#ff9f5a" stroke="#d97236" stroke-width="2"/>
-                <circle cx="195" cy="171" r="6" fill="#5e2e14"/>
+              <g transform="rotate(-16 200 176)">
+                <rect x="208" y="168" width="44" height="7.5" rx="3" fill="#c97a4b"/>
+                <rect x="248" y="166" width="9" height="11.5" rx="2" fill="#8c4d27"/>
+                <circle cx="185" cy="172" r="15" fill="#ff9f5a" stroke="#d97236" stroke-width="2"/>
+                <circle cx="202" cy="172" r="11.5" fill="#ff9f5a" stroke="#d97236" stroke-width="2"/>
+                <circle cx="195" cy="172" r="5.5" fill="#5e2e14"/>
               </g>
-
-              <!-- Bunny Paws holding guitar -->
-              <circle cx="184" cy="174" r="7" fill="#ffffff" stroke="#e6cadb" stroke-width="1.8"/>
-              <circle cx="215" cy="168" r="7" fill="#ffffff" stroke="#e6cadb" stroke-width="1.8"/>
             </g>
           </svg>
         </div>
@@ -568,8 +570,8 @@
        🎀 CUSTOMIZATION SECTION (عدّل البيانات هنا بسهولة)
        ============================================================================ */
     const CONFIG = {
-      // 1. اسم صاحبة عيد الميلاد (يظهر في شاشة الماتريكس الوردية)
-      recipientName: "Howida",
+      // 1. نص البداية في أول صفحة
+      introTitle: "To Howida",
 
       // 2. رسالة عيد الميلاد في المشهد الأخير
       loveLetterMessage: `بصي هو الكلام عشوائي بس هقولك الي دايماً بحس بيه
@@ -739,9 +741,7 @@
     let scene2Timer = null;
 
     const introSteps = [
-      { type: "text", value: "TO", duration: 1100 },
-      { type: "text", value: "BIRTHDAY", duration: 1250 },
-      { type: "text", value: CONFIG.recipientName, duration: 1650 },
+      { type: "text", value: CONFIG.introTitle, duration: 1650 },
       { type: "heart", duration: 1450 },
       { type: "countdown", value: "3", duration: 950 },
       { type: "countdown", value: "2", duration: 950 },
@@ -856,20 +856,34 @@
     const bgAudio = document.getElementById("bgAudio");
     let isMusicPlaying = false;
     let hasTriedAutoMusic = false;
+    let isSeekingToStart = false;
 
-    function seekToClipStart() {
-      if (!bgAudio) return;
-      if (bgAudio.currentTime < CONFIG.audioStartSec || bgAudio.currentTime >= CONFIG.audioEndSec) {
-        bgAudio.currentTime = CONFIG.audioStartSec;
+    function jumpToStartTime() {
+      if (!bgAudio || isNaN(bgAudio.duration)) return;
+      const targetTime = Math.min(CONFIG.audioStartSec, Math.max(0, bgAudio.duration - 1));
+      if (Math.abs(bgAudio.currentTime - targetTime) > 0.6) {
+        isSeekingToStart = true;
+        bgAudio.currentTime = targetTime;
+        setTimeout(() => { isSeekingToStart = false; }, 300);
       }
     }
 
     if (bgAudio) {
-      bgAudio.addEventListener("loadedmetadata", seekToClipStart);
+      bgAudio.addEventListener("loadedmetadata", jumpToStartTime);
+      bgAudio.addEventListener("canplay", () => {
+        if (!isMusicPlaying) jumpToStartTime();
+      });
+
+      bgAudio.addEventListener("playing", () => {
+        if (bgAudio.currentTime < CONFIG.audioStartSec - 1 && !isSeekingToStart) {
+          jumpToStartTime();
+        }
+      });
 
       bgAudio.addEventListener("timeupdate", () => {
+        if (isSeekingToStart) return;
         if (bgAudio.currentTime >= CONFIG.audioEndSec) {
-          bgAudio.currentTime = CONFIG.audioStartSec;
+          jumpToStartTime();
           if (isMusicPlaying) {
             bgAudio.play().catch(() => {});
           }
@@ -884,8 +898,8 @@
       isMusicPlaying = typeof forceState === "boolean" ? forceState : !isMusicPlaying;
 
       if (isMusicPlaying) {
-        seekToClipStart();
         bgAudio.play().then(() => {
+          jumpToStartTime();
           musicIcon.textContent = "🎵";
         }).catch(() => {
           isMusicPlaying = false;
@@ -913,5 +927,4 @@
     goToScene(0);
   </script>
 </body>
-
 </html>
