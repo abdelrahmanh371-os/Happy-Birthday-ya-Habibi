@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Happy Birthday ✨</title>
+
+  <!-- Google Fonts: Arabic (Cairo & Tajawal) + English Script & Display (Dancing Script & Poppins) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Dancing+Script:wght@600;700&family=Poppins:wght@400;600;800&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg-matrix: #050508;
+      --bg-night-top: #070812;
+      --bg-night-bottom: #0d1021;
+      --neon-pink: #ff2a85;
+      --neon-pink-soft: #ff77b7;
+      --neon-pink-glow: rgba(255, 42, 133, 0.75);
+      --card-bg: rgba(255, 255, 255, 0.96);
+      --text-dark: #251d29;
+      --text-muted: #6c5b73;
+      --accent-rose: #ff3b8d;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--bg-matrix);
+      font-family: 'Cairo', 'Poppins', sans-serif;
+      color: #fff;
+      user-select: none;
+    }
+
+    /* ==================== CANVASES ==================== */
+    canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      pointer-events: none;
+    }
+
+    #matrixCanvas {
+      z-index: 1;
+      opacity: 1;
+      transition: opacity 1.4s ease-in-out;
+    }
+
+    #starfieldCanvas {
+      z-index: 2;
+      opacity: 0;
+      background: linear-gradient(180deg, var(--bg-night-top) 0%, var(--bg-night-bottom) 100%);
+      transition: opacity 1.6s ease-in-out;
+    }
+
+    body.night-mode #matrixCanvas {
+      opacity: 0;
+    }
+
+    body.night-mode #starfieldCanvas {
+      opacity: 1;
+    }
+
+    /* ==================== STAGE & SCENES ==================== */
+    #app {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .scene {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 18px 86px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(18px) scale(0.97);
+      transition: opacity 0.85s cubic-bezier(0.22, 1, 0.36, 1),
+                  transform 0.85s cubic-bezier(0.22, 1, 0.36, 1),
+                  visibility 0.85s;
+      overflow-y: auto;
+      scrollbar-width: none;
+    }
+
+    .scene::-webkit-scrollbar {
+      display: none;
+    }
+
+    .scene.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) scale(1);
+    }
+
+    /* ==================== SCENE 1: MATRIX INTRO ==================== */
+    #scene1 {
+      cursor: pointer;
+    }
+
+    .matrix-overlay {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 220px;
+      padding: 20px;
+    }
+
+    .neon-word {
+      font-family: 'Poppins', 'Cairo', sans-serif;
+      font-weight: 800;
+      font-size: clamp(2.6rem, 9vw, 5.5rem);
+      letter-spacing: 0.08em;
+      color: #ffd6e8;
+      text-shadow:
+        0 0 10px var(--neon-pink),
+        0 0 25px var(--neon-pink),
+        0 0 50px var(--neon-pink-glow),
+        0 0 90px rgba(255, 42, 133, 0.45);
+      opacity: 0;
+      transform: scale(0.75);
+      transition: opacity 0.45s ease, transform 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      line-height: 1.25;
+      max-width: 90vw;
+      word-wrap: break-word;
+    }
+
+    .neon-word.is-arabic {
+      letter-spacing: 0;
+      font-family: 'Cairo', sans-serif;
+    }
+
+    .neon-word.show {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .neon-word.countdown {
+      font-size: clamp(4.5rem, 15vw, 8.5rem);
+    }
+
+    .neon-heart-wrap {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      animation: heartbeat 1.1s infinite ease-in-out;
+      filter: drop-shadow(0 0 18px var(--neon-pink)) drop-shadow(0 0 38px var(--neon-pink-glow));
+    }
+
+    .neon-heart-wrap.show {
+      display: flex;
+    }
+
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); }
+      25% { transform: scale(1.16); }
+      45% { transform: scale(0.98); }
+      65% { transform: scale(1.12); }
+    }
+
+    .tap-hint {
+      position: fixed;
+      bottom: 84px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.82rem;
+      color: rgba(255, 182, 217, 0.7);
+      letter-spacing: 0.04em;
+      animation: pulseOpacity 2s infinite ease-in-out;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    @keyframes pulseOpacity {
+      0%, 100% { opacity: 0.35; }
+      50% { opacity: 0.9; }
+    }
+
+    /* ==================== SCENE 2: STARRY TRANSITION ==================== */
+    .star-wish-box {
+      text-align: center;
+      max-width: 540px;
+      padding: 24px;
+    }
+
+    .star-wish-title {
+      font-family: 'Dancing Script', 'Cairo', cursive, sans-serif;
+      font-size: clamp(2.1rem, 6vw, 3.4rem);
+      color: #ffe3f0;
+      text-shadow: 0 0 22px rgba(255, 105, 180, 0.65);
+      margin-bottom: 12px;
+    }
+
+    .star-wish-sub {
+      font-size: clamp(1rem, 3vw, 1.15rem);
+      color: rgba(235, 238, 255, 0.85);
+      line-height: 1.7;
+    }
+
+    /* ==================== SCENE 3: ILLUSTRATION & LOVE LETTER ==================== */
+    .scene3-layout {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 580px;
+      gap: 10px;
+    }
+
+    .illustration-stage {
+      width: 100%;
+      max-width: 390px;
+      margin-bottom: -14px;
+      z-index: 2;
+      filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.45));
+    }
+
+    .floating-heart-svg {
+      animation: floatHeartUp 3.2s ease-in-out infinite;
+      transform-origin: center;
+    }
+
+    .floating-heart-svg.delay-1 { animation-delay: 0.8s; }
+    .floating-heart-svg.delay-2 { animation-delay: 1.6s; }
+
+    @keyframes floatHeartUp {
+      0%, 100% { transform: translateY(0px) scale(1); }
+      50% { transform: translateY(-7px) scale(1.08); }
+    }
+
+    .bunny-sway {
+      animation: gentleSway 3.5s ease-in-out infinite;
+      transform-origin: 200px 210px;
+    }
+
+    @keyframes gentleSway {
+      0%, 100% { transform: rotate(-1.5deg); }
+      50% { transform: rotate(1.5deg); }
+    }
+
+    .letter-card {
+      background: var(--card-bg);
+      color: var(--text-dark);
+      border-radius: 18px;
+      box-shadow:
+        0 20px 55px rgba(0, 0, 0, 0.6),
+        0 0 35px rgba(255, 77, 148, 0.25);
+      width: 100%;
+      padding: 24px 24px 26px;
+      text-align: center;
+      position: relative;
+      z-index: 3;
+    }
+
+    .hands-heart-badge {
+      width: 78px;
+      height: 56px;
+      margin: 0 auto 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .love-letter-text {
+      font-family: 'Tajawal', 'Cairo', 'Poppins', sans-serif;
+      font-size: clamp(1.02rem, 3.2vw, 1.15rem);
+      line-height: 1.85;
+      color: #2f2436;
+      white-space: pre-line;
+      max-height: 34vh;
+      overflow-y: auto;
+      padding: 0 6px;
+    }
+
+    /* ==================== FLOATING CONTROL BAR ==================== */
+    .control-bar {
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(16, 17, 32, 0.78);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 119, 183, 0.28);
+      padding: 7px 12px;
+      border-radius: 999px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .ctrl-btn {
+      background: transparent;
+      border: none;
+      color: #ffe3f1;
+      font-family: 'Cairo', 'Poppins', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: background 0.25s ease, color 0.25s ease, transform 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .ctrl-btn:hover {
+      background: rgba(255, 42, 133, 0.24);
+      color: #fff;
+    }
+
+    .ctrl-btn:active {
+      transform: scale(0.95);
+    }
+
+    .ctrl-btn.primary {
+      background: linear-gradient(135deg, #ff2a85, #ff62a5);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(255, 42, 133, 0.45);
+    }
+
+    .ctrl-btn.primary:hover {
+      background: linear-gradient(135deg, #ff3d90, #ff77b3);
+    }
+
+    .scene-dots {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 0 6px;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.28);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .dot.active {
+      width: 18px;
+      border-radius: 999px;
+      background: var(--neon-pink);
+      box-shadow: 0 0 8px var(--neon-pink);
+    }
+
+    @media (max-width: 480px) {
+      .ctrl-btn span.label-hide-xs {
+        display: none;
+      }
+      .ctrl-btn {
+        padding: 7px 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Canvases -->
+  <canvas id="matrixCanvas"></canvas>
+  <canvas id="starfieldCanvas"></canvas>
+
+  <!-- Main Interactive Stage -->
+  <main id="app">
+
+    <!-- ==================== SCENE 1: PINK MATRIX & COUNTDOWN ==================== -->
+    <section id="scene1" class="scene active" aria-label="Birthday Intro">
+      <div class="matrix-overlay" id="matrixOverlay">
+        <div id="sequenceWord" class="neon-word"></div>
+        <div id="sequenceHeart" class="neon-heart-wrap" aria-hidden="true">
+          <svg width="115" height="105" viewBox="0 0 120 110" fill="none">
+            <path d="M60 100C60 100 10 68 10 34C10 17.5 23 5 39 5C48.5 5 56.5 9.8 60 17.2C63.5 9.8 71.5 5 81 5C97 5 110 17.5 110 34C110 68 60 100 60 100Z"
+                  fill="url(#pinkHeartGrad)" stroke="#ffd6e8" stroke-width="2.5"/>
+            <defs>
+              <linearGradient id="pinkHeartGrad" x1="10" y1="5" x2="110" y2="100" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#ff77b7"/>
+                <stop offset="50%" stop-color="#ff2a85"/>
+                <stop offset="100%" stop-color="#c90058"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+      </div>
+      <div class="tap-hint" id="tapHint">اضغط في أي مكان للتخطي أو المتابعة • Tap anywhere to advance</div>
+    </section>
+
+    <!-- ==================== SCENE 2: STARRY SKY TRANSITION ==================== -->
+    <section id="scene2" class="scene" aria-label="Starry Night Transition">
+      <div class="star-wish-box">
+        <div class="star-wish-title" id="starTitle">Happy Birthday to you ✨</div>
+        <p class="star-wish-sub" id="starSubtitle">
+          كل سنة وانتي معايا
+        </p>
+      </div>
+    </section>
+
+    <!-- ==================== SCENE 3: CUTE ILLUSTRATION & LOVE LETTER ==================== -->
+    <section id="scene3" class="scene" aria-label="Birthday Illustration and Love Letter">
+      <div class="scene3-layout">
+
+        <!-- Custom Cute Vector Illustration: Bunny Musician + Party Hat + Happy Birthday Arch -->
+        <div class="illustration-stage" aria-hidden="true">
+          <svg viewBox="0 0 400 235" width="100%" height="auto" fill="none">
+            <!-- Bunting / Garland Arch -->
+            <path d="M 35 65 Q 200 15 365 65" stroke="#ffd1e8" stroke-width="2.5" stroke-dasharray="4 3" fill="none"/>
+            <!-- Colorful Banner Flags -->
+            <polygon points="65,56 85,52 78,74" fill="#ff5ca8"/>
+            <polygon points="105,47 125,44 117,67" fill="#ffbe3b"/>
+            <polygon points="148,41 168,39 159,62" fill="#5ce1e6"/>
+            <polygon points="232,39 252,41 241,62" fill="#a67cff"/>
+            <polygon points="275,44 295,47 283,67" fill="#ff5ca8"/>
+            <polygon points="315,52 335,56 322,74" fill="#ffbe3b"/>
+
+            <!-- HAPPY BIRTHDAY Arch Text -->
+            <text x="200" y="30" text-anchor="middle" fill="#ffe3f1" font-family="Poppins, sans-serif" font-weight="800" font-size="16" letter-spacing="3">
+              HAPPY BIRTHDAY
+            </text>
+
+            <!-- Floating Hearts -->
+            <g class="floating-heart-svg">
+              <path d="M78 125c0-6 8-10 12-4 4-6 12-2 12 4 0 8-12 15-12 15s-12-7-12-15z" fill="#ff4d94"/>
+            </g>
+            <g class="floating-heart-svg delay-1">
+              <path d="M302 115c0-6 8-10 12-4 4-6 12-2 12 4 0 8-12 15-12 15s-12-7-12-15z" fill="#ff77b7"/>
+            </g>
+            <g class="floating-heart-svg delay-2">
+              <path d="M285 162c0-4.5 6-7.5 9-3 3-4.5 9-1.5 9 3 0 6-9 11-9 11s-9-5-9-11z" fill="#ffbe3b"/>
+            </g>
+
+            <!-- Soft Ground Glow -->
+            <ellipse cx="200" cy="216" rx="85" ry="12" fill="rgba(255, 119, 183, 0.22)"/>
+
+            <!-- Cute White Bunny Character -->
+            <g class="bunny-sway">
+              <!-- Bunny Ears -->
+              <rect x="174" y="68" width="16" height="48" rx="8" transform="rotate(-10 174 68)" fill="#ffffff" stroke="#f0d9e7" stroke-width="2"/>
+              <rect x="178" y="74" width="8" height="34" rx="4" transform="rotate(-10 178 74)" fill="#ffb3d5"/>
+
+              <rect x="210" y="68" width="16" height="48" rx="8" transform="rotate(10 210 68)" fill="#ffffff" stroke="#f0d9e7" stroke-width="2"/>
+              <rect x="214" y="74" width="8" height="34" rx="4" transform="rotate(10 214 74)" fill="#ffb3d5"/>
+
+              <!-- Cute Party Hat -->
+              <polygon points="200,56 187,94 213,94" fill="#ff2a85"/>
+              <circle cx="200" cy="54" r="5" fill="#ffbe3b"/>
+              <line x1="191" y1="82" x2="209" y2="82" stroke="#ffe3f1" stroke-width="2.5"/>
+
+              <!-- Bunny Body -->
+              <ellipse cx="200" cy="176" rx="34" ry="38" fill="#ffffff" stroke="#f0d9e7" stroke-width="2"/>
+              <!-- Bunny Feet -->
+              <ellipse cx="183" cy="211" rx="13" ry="7" fill="#ffffff" stroke="#f0d9e7" stroke-width="2"/>
+              <ellipse cx="217" cy="211" rx="13" ry="7" fill="#ffffff" stroke="#f0d9e7" stroke-width="2"/>
+
+              <!-- Bunny Head -->
+              <circle cx="200" cy="122" r="32" fill="#ffffff" stroke="#f0d9e7" stroke-width="2"/>
+              <!-- Eyes -->
+              <circle cx="189" cy="120" r="3.5" fill="#2d2036"/>
+              <circle cx="211" cy="120" r="3.5" fill="#2d2036"/>
+              <circle cx="190" cy="118.8" r="1.2" fill="#ffffff"/>
+              <circle cx="212" cy="118.8" r="1.2" fill="#ffffff"/>
+              <!-- Rosy Cheeks -->
+              <ellipse cx="181" cy="127" rx="5" ry="3" fill="#ff9ec7" opacity="0.75"/>
+              <ellipse cx="219" cy="127" rx="5" ry="3" fill="#ff9ec7" opacity="0.75"/>
+              <!-- Cute Nose & Smile -->
+              <polygon points="197,126 203,126 200,129.5" fill="#ff66a3"/>
+              <path d="M195 132 Q200 136 205 132" stroke="#2d2036" stroke-width="2" stroke-linecap="round" fill="none"/>
+
+              <!-- Cute Acoustic Guitar -->
+              <g transform="rotate(-18 200 175)">
+                <rect x="208" y="167" width="46" height="8" rx="3" fill="#c97a4b"/>
+                <rect x="250" y="165" width="10" height="12" rx="2" fill="#8c4d27"/>
+                <circle cx="184" cy="171" r="16" fill="#ff9f5a" stroke="#d97236" stroke-width="2"/>
+                <circle cx="202" cy="171" r="12" fill="#ff9f5a" stroke="#d97236" stroke-width="2"/>
+                <circle cx="195" cy="171" r="6" fill="#5e2e14"/>
+              </g>
+
+              <!-- Bunny Paws holding guitar -->
+              <circle cx="184" cy="174" r="7" fill="#ffffff" stroke="#e6cadb" stroke-width="1.8"/>
+              <circle cx="215" cy="168" r="7" fill="#ffffff" stroke="#e6cadb" stroke-width="1.8"/>
+            </g>
+          </svg>
+        </div>
+
+        <!-- Love Letter White Card -->
+        <div class="letter-card">
+          <!-- Cute Hands Holding Pink Heart Graphic -->
+          <div class="hands-heart-badge" aria-hidden="true">
+            <svg viewBox="0 0 110 76" width="78" height="54" fill="none">
+              <!-- Glowing Pink Heart -->
+              <path d="M55 46C55 46 33 32 33 18C33 10.5 39 5 46 5C50.2 5 53.6 7.1 55 10.3C56.4 7.1 59.8 5 64 5C71 5 77 10.5 77 18C77 32 55 46 55 46Z"
+                    fill="#ff2a85"/>
+              <!-- Left Cute Hand -->
+              <path d="M16 44 C22 36, 34 38, 44 47 L52 55 C54 57, 51 62, 47 60 L36 53 C32 57, 24 58, 16 53 Z"
+                    fill="#ffd7c2" stroke="#e6b095" stroke-width="1.8" stroke-linejoin="round"/>
+              <!-- Right Cute Hand -->
+              <path d="M94 44 C88 36, 76 38, 66 47 L58 55 C56 57, 59 62, 63 60 L74 53 C78 57, 86 58, 94 53 Z"
+                    fill="#ffd7c2" stroke="#e6b095" stroke-width="1.8" stroke-linejoin="round"/>
+            </svg>
+          </div>
+
+          <!-- Heartfelt Message (Populated via CONFIG) -->
+          <p id="loveLetterMessage" class="love-letter-text"></p>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== FLOATING CONTROL BAR ==================== -->
+  <nav class="control-bar" aria-label="Birthday Card Controls">
+    <button class="ctrl-btn" id="replayBtn" title="Replay Intro">
+      <span>↻</span>
+      <span class="label-hide-xs">إعادة</span>
+    </button>
+
+    <button class="ctrl-btn" id="prevBtn" title="Previous Scene">
+      <span>‹</span>
+    </button>
+
+    <div class="scene-dots" id="sceneDots">
+      <span class="dot active" data-scene="0" title="Intro"></span>
+      <span class="dot" data-scene="1" title="Starry Sky"></span>
+      <span class="dot" data-scene="2" title="Letter"></span>
+    </div>
+
+    <button class="ctrl-btn primary" id="nextBtn" title="Next Scene">
+      <span class="label-hide-xs">التالي</span>
+      <span>›</span>
+    </button>
+
+    <button class="ctrl-btn" id="musicBtn" title="Toggle Music">
+      <span id="musicIcon">🔇</span>
+    </button>
+  </nav>
+
+  <!-- Background Song File (40s to 90s) -->
+  <audio id="bgAudio" src="01.Kalam_El_Donya.mp3" preload="auto"></audio>
+
+  <script>
+    /* ============================================================================
+       🎀 CUSTOMIZATION SECTION (عدّل البيانات هنا بسهولة)
+       ============================================================================ */
+    const CONFIG = {
+      // 1. اسم صاحبة عيد الميلاد (يظهر في شاشة الماتريكس الوردية)
+      recipientName: "Howida",
+
+      // 2. رسالة عيد الميلاد في المشهد الأخير
+      loveLetterMessage: `بصي هو الكلام عشوائي بس هقولك الي دايماً بحس بيه
+انتي راحه بالي وعيني وروحي وكل الحلو في حياتي انا مببقاش مبسوط غير معاكي ومش عايز غير اني اتبسط معاكي وافرحك زي ما بتفرحيني
+انا مبرتاحش غير معاكي انتي كل الناس وكل الدنيا ومحدش غيرك هيملى حياتي ولا عيني
+انا والله بحبك جداً فوق الوصف وكل الي يهمني اشوفك مبسوطه ومطمنه
+مفيش مكان اقدر ارتاح فيه غير معاكي ومبأڤورش والله
+انتي وجودك مهم عندي يا حبيبي
+انتي حنينه وجميله وقلبك ابيض وروحك حلوه ودمك خفيف كلك على بعضك حته قشطه طريه حاجه كدا فخمه الفخامه
+انا دايماً مبسوط بيكي وانك معايا ويلي تنشكي مش عايز اجيب تاليا غير منك
+انا مهما قلت مش هكفيكي حقك بس ربنا يخليكي ليا
+دا اول عيد ميلاد ليكي معايا وان شاء الله مش اخر واحد ويارب كل سنه نفضل سوا لاخر العمر ان شاء الله
+هتفضلي منوره حياتي وهفضل احبك دايماً
+كل سنه وانتي طيبه وكل سنه وانتي حلاوه وجمال واحلى بنت وست البنات ياعم الطري كل سنه وانتي معايا يا حبيبي ونفضل سوا دايماً انا بحبك جداً جداً جداً والله العظيم ومبحبش حد قدك يا عيوني ويارب اشوفك دايماً مبسوطه ومطمنه ياروحي وزي ما قولتلك انا بحبك وقلبي بيحبك وهيفضل يحبك يا كل الناس ♥️♥️♥️♥️♥️♥️♥️`,
+
+      // 3. وقت بداية ونهاية المقطع الصوتي (بالثواني)
+      audioStartSec: 40,
+      audioEndSec: 90,
+
+      // 4. سرعة الانتقال التلقائي (بالملي ثانية)
+      autoAdvanceIntro: true,
+      starryTransitionDuration: 3200
+    };
+
+    /* ============================================================================
+       HELPER: DETECT ARABIC TEXT FOR AUTOMATIC RTL / FONT STYLING
+       ============================================================================ */
+    function isArabic(text) {
+      return /[\u0600-\u06FF]/.test(text);
+    }
+
+    function applyLanguageDirection(el, text) {
+      if (isArabic(text)) {
+        el.setAttribute("dir", "rtl");
+        el.classList.add("is-arabic");
+      } else {
+        el.setAttribute("dir", "ltr");
+        el.classList.remove("is-arabic");
+      }
+    }
+
+    const letterEl = document.getElementById("loveLetterMessage");
+    letterEl.textContent = CONFIG.loveLetterMessage;
+    applyLanguageDirection(letterEl, CONFIG.loveLetterMessage);
+
+    /* ============================================================================
+       CANVAS 1: PINK MATRIX DIGITAL RAIN (HIGH FPS)
+       ============================================================================ */
+    const matrixCanvas = document.getElementById("matrixCanvas");
+    const mCtx = matrixCanvas.getContext("2d");
+    let mWidth, mHeight, mColumns, mDrops;
+    const matrixChars = "HAPPYBIRTHDAY♥✨01LOVE★❤";
+    const fontSize = 16;
+
+    function initMatrix() {
+      mWidth = matrixCanvas.width = window.innerWidth;
+      mHeight = matrixCanvas.height = window.innerHeight;
+      mColumns = Math.floor(mWidth / fontSize);
+      mDrops = Array.from({ length: mColumns }, () => Math.random() * -40);
+    }
+
+    function drawMatrix() {
+      if (!document.body.classList.contains("night-mode")) {
+        mCtx.fillStyle = "rgba(5, 5, 8, 0.14)";
+        mCtx.fillRect(0, 0, mWidth, mHeight);
+
+        mCtx.font = `bold ${fontSize}px monospace`;
+
+        for (let i = 0; i < mDrops.length; i++) {
+          const text = matrixChars.charAt(Math.floor(Math.random() * matrixChars.length));
+          const x = i * fontSize;
+          const y = mDrops[i] * fontSize;
+
+          const isBrightTip = Math.random() > 0.85;
+          mCtx.fillStyle = isBrightTip ? "#ffd6e8" : "#ff2a85";
+          mCtx.shadowColor = "#ff2a85";
+          mCtx.shadowBlur = isBrightTip ? 10 : 4;
+
+          mCtx.fillText(text, x, y);
+          mCtx.shadowBlur = 0;
+
+          if (y > mHeight && Math.random() > 0.975) {
+            mDrops[i] = 0;
+          }
+          mDrops[i] += 0.65;
+        }
+      }
+      requestAnimationFrame(drawMatrix);
+    }
+
+    /* ============================================================================
+       CANVAS 2: TWINKLING & DRIFTING STARRY NIGHT SKY
+       ============================================================================ */
+    const starCanvas = document.getElementById("starfieldCanvas");
+    const sCtx = starCanvas.getContext("2d");
+    let sWidth, sHeight, stars = [];
+
+    function initStars() {
+      sWidth = starCanvas.width = window.innerWidth;
+      sHeight = starCanvas.height = window.innerHeight;
+      const count = Math.min(180, Math.floor((sWidth * sHeight) / 6500));
+      stars = Array.from({ length: count }, () => ({
+        x: Math.random() * sWidth,
+        y: Math.random() * sHeight,
+        radius: Math.random() * 1.8 + 0.4,
+        alpha: Math.random(),
+        twinkleSpeed: (Math.random() * 0.02 + 0.006) * (Math.random() < 0.5 ? 1 : -1),
+        driftY: -(Math.random() * 0.18 + 0.04),
+        hue: Math.random() > 0.8 ? "#ffb8dc" : "#ffffff"
+      }));
+    }
+
+    function drawStars() {
+      if (document.body.classList.contains("night-mode")) {
+        sCtx.clearRect(0, 0, sWidth, sHeight);
+
+        for (let star of stars) {
+          star.alpha += star.twinkleSpeed;
+          if (star.alpha <= 0.15 || star.alpha >= 1) {
+            star.twinkleSpeed *= -1;
+          }
+          star.y += star.driftY;
+          if (star.y < -5) {
+            star.y = sHeight + 5;
+            star.x = Math.random() * sWidth;
+          }
+
+          sCtx.beginPath();
+          sCtx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+          sCtx.fillStyle = star.hue;
+          sCtx.globalAlpha = Math.max(0.1, Math.min(1, star.alpha));
+          sCtx.shadowColor = star.hue;
+          sCtx.shadowBlur = star.radius * 4;
+          sCtx.fill();
+        }
+        sCtx.globalAlpha = 1;
+        sCtx.shadowBlur = 0;
+      }
+      requestAnimationFrame(drawStars);
+    }
+
+    window.addEventListener("resize", () => {
+      initMatrix();
+      initStars();
+    });
+
+    initMatrix();
+    initStars();
+    drawMatrix();
+    drawStars();
+
+    /* ============================================================================
+       SCENE & SEQUENCE CONTROLLER (3 SCENES: INTRO -> STARRY SKY -> LOVE LETTER)
+       ============================================================================ */
+    const scenes = [
+      document.getElementById("scene1"),
+      document.getElementById("scene2"),
+      document.getElementById("scene3")
+    ];
+    const dots = document.querySelectorAll(".dot");
+    const seqWordEl = document.getElementById("sequenceWord");
+    const seqHeartEl = document.getElementById("sequenceHeart");
+
+    let currentScene = 0;
+    let sequenceStep = 0;
+    let sequenceTimer = null;
+    let scene2Timer = null;
+
+    const introSteps = [
+      { type: "text", value: "TO", duration: 1100 },
+      { type: "text", value: "BIRTHDAY", duration: 1250 },
+      { type: "text", value: CONFIG.recipientName, duration: 1650 },
+      { type: "heart", duration: 1450 },
+      { type: "countdown", value: "3", duration: 950 },
+      { type: "countdown", value: "2", duration: 950 },
+      { type: "countdown", value: "1", duration: 950 }
+    ];
+
+    function renderIntroStep(index) {
+      clearTimeout(sequenceTimer);
+
+      if (index >= introSteps.length) {
+        goToScene(1);
+        return;
+      }
+
+      sequenceStep = index;
+      const step = introSteps[index];
+
+      seqWordEl.classList.remove("show", "countdown", "is-arabic");
+      seqHeartEl.classList.remove("show");
+
+      requestAnimationFrame(() => {
+        if (step.type === "heart") {
+          seqWordEl.style.display = "none";
+          seqHeartEl.classList.add("show");
+        } else {
+          seqWordEl.style.display = "block";
+          seqWordEl.textContent = step.value;
+          applyLanguageDirection(seqWordEl, step.value);
+          if (step.type === "countdown") {
+            seqWordEl.classList.add("countdown");
+          }
+          void seqWordEl.offsetWidth;
+          seqWordEl.classList.add("show");
+        }
+      });
+
+      if (CONFIG.autoAdvanceIntro) {
+        sequenceTimer = setTimeout(() => {
+          renderIntroStep(index + 1);
+        }, step.duration);
+      }
+    }
+
+    function goToScene(index) {
+      clearTimeout(sequenceTimer);
+      clearTimeout(scene2Timer);
+
+      currentScene = Math.max(0, Math.min(scenes.length - 1, index));
+
+      if (currentScene === 0) {
+        document.body.classList.remove("night-mode");
+      } else {
+        document.body.classList.add("night-mode");
+      }
+
+      scenes.forEach((sc, idx) => {
+        sc.classList.toggle("active", idx === currentScene);
+      });
+
+      dots.forEach((dot, idx) => {
+        dot.classList.toggle("active", idx === currentScene);
+      });
+
+      if (currentScene === 0) {
+        renderIntroStep(0);
+      } else if (currentScene === 1) {
+        scene2Timer = setTimeout(() => {
+          if (currentScene === 1) goToScene(2);
+        }, CONFIG.starryTransitionDuration);
+      }
+    }
+
+    // Tap/Click on Scene 1 advances sequence immediately & starts song clip
+    document.getElementById("scene1").addEventListener("click", () => {
+      startMusicOnce();
+      renderIntroStep(sequenceStep + 1);
+    });
+
+    // Control Bar Events
+    document.getElementById("replayBtn").addEventListener("click", () => {
+      goToScene(0);
+    });
+
+    document.getElementById("prevBtn").addEventListener("click", () => {
+      if (currentScene === 0 && sequenceStep > 0) {
+        renderIntroStep(sequenceStep - 1);
+      } else {
+        goToScene(currentScene - 1);
+      }
+    });
+
+    document.getElementById("nextBtn").addEventListener("click", () => {
+      startMusicOnce();
+      if (currentScene === 0) {
+        renderIntroStep(sequenceStep + 1);
+      } else {
+        goToScene((currentScene + 1) % scenes.length);
+      }
+    });
+
+    dots.forEach(dot => {
+      dot.addEventListener("click", () => {
+        startMusicOnce();
+        const target = Number(dot.dataset.scene);
+        goToScene(target);
+      });
+    });
+
+    /* ============================================================================
+       AUDIO CLIP CONTROLLER: 01.Kalam_El_Donya.mp3 (FROM 40s TO 90s)
+       ============================================================================ */
+    const bgAudio = document.getElementById("bgAudio");
+    let isMusicPlaying = false;
+    let hasTriedAutoMusic = false;
+
+    function seekToClipStart() {
+      if (!bgAudio) return;
+      if (bgAudio.currentTime < CONFIG.audioStartSec || bgAudio.currentTime >= CONFIG.audioEndSec) {
+        bgAudio.currentTime = CONFIG.audioStartSec;
+      }
+    }
+
+    if (bgAudio) {
+      bgAudio.addEventListener("loadedmetadata", seekToClipStart);
+
+      bgAudio.addEventListener("timeupdate", () => {
+        if (bgAudio.currentTime >= CONFIG.audioEndSec) {
+          bgAudio.currentTime = CONFIG.audioStartSec;
+          if (isMusicPlaying) {
+            bgAudio.play().catch(() => {});
+          }
+        }
+      });
+    }
+
+    function toggleMusic(forceState) {
+      const musicIcon = document.getElementById("musicIcon");
+      if (!bgAudio) return;
+
+      isMusicPlaying = typeof forceState === "boolean" ? forceState : !isMusicPlaying;
+
+      if (isMusicPlaying) {
+        seekToClipStart();
+        bgAudio.play().then(() => {
+          musicIcon.textContent = "🎵";
+        }).catch(() => {
+          isMusicPlaying = false;
+          musicIcon.textContent = "🔇";
+        });
+      } else {
+        bgAudio.pause();
+        musicIcon.textContent = "🔇";
+      }
+    }
+
+    function startMusicOnce() {
+      if (!hasTriedAutoMusic) {
+        hasTriedAutoMusic = true;
+        toggleMusic(true);
+      }
+    }
+
+    document.getElementById("musicBtn").addEventListener("click", () => {
+      hasTriedAutoMusic = true;
+      toggleMusic();
+    });
+
+    // Start Scene 1 on load
+    goToScene(0);
+  </script>
+</body>
+
+</html>
